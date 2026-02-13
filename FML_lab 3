@@ -1,0 +1,44 @@
+# Install required library (Run in Colab if needed)
+!pip install imbalanced-learn
+
+# Import Libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import Counter
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+# Load Dataset
+df = pd.read_csv("loan_data.csv")
+
+print("First 5 Rows:")
+print(df.head())
+
+# Assume target column is 'Loan_Status'
+print("\nClass Distribution Before SMOTE:")
+print(Counter(df['Loan_Status']))
+
+# Convert categorical columns
+le = LabelEncoder()
+for col in df.columns:
+    if df[col].dtype == 'object':
+        df[col] = le.fit_transform(df[col])
+
+# Split features and target
+X = df.drop('Loan_Status', axis=1)
+y = df['Loan_Status']
+
+# Apply SMOTE
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+print("\nClass Distribution After SMOTE:")
+print(Counter(y_resampled))
+
+# Plot Before & After
+plt.figure()
+plt.title("Class Distribution After SMOTE")
+pd.Series(y_resampled).value_counts().plot(kind='bar')
+plt.show()
+
